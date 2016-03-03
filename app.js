@@ -1,4 +1,5 @@
 var express = require('express');
+var socket_io = require('socket.io');
 var path = require('path');
 var favicon = require('serve-favicon');
 var logger = require('morgan');
@@ -8,7 +9,20 @@ var bodyParser = require('body-parser');
 var routes = require('./routes/index');
 var users = require('./routes/users');
 
+var livereload = require('express-livereload');
+
+;
+
 var app = express();
+
+var io = socket_io();
+app.io = io;
+
+
+livereload(app, {
+  watchDir: process.cwd(),
+  exts: ["ejs"]
+});
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -23,7 +37,7 @@ app.use(cookieParser());
 app.use(require('node-sass-middleware')({
   src: path.join(__dirname, 'public'),
   dest: path.join(__dirname, 'public'),
-  indentedSyntax: true,
+  indentedSyntax: false,
   sourceMap: true
 }));
 app.use(express.static(path.join(__dirname, 'public')));
@@ -61,6 +75,23 @@ app.use(function(err, req, res, next) {
     error: {}
   });
 });
+
+
+io.on( "connection", function( socket ){
+  console.log( "A user connected" );
+});
+
+
+
+
+var music = require('./modules/music')();
+
+music.on('trackChange', function(data){
+  console.log("Now Playing: " + data.title + " by " + data.artist);
+  io.emit('trackChange', data);
+});
+
+
 
 
 module.exports = app;
