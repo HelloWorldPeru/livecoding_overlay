@@ -1,3 +1,7 @@
+const chalk = require('chalk');
+
+require('dotenv').config();
+
 var express = require('express');
 var socket_io = require('socket.io');
 var path = require('path');
@@ -11,7 +15,6 @@ var users = require('./routes/users');
 
 var livereload = require('express-livereload');
 
-;
 
 var app = express();
 
@@ -83,13 +86,39 @@ io.on( "connection", function( socket ){
 
 
 
-
+// Music
 var music = require('./modules/music')();
 
 music.on('trackChange', function(data){
   console.log("Now Playing: " + data.title + " by " + data.artist);
   io.emit('trackChange', data);
 });
+
+// Chat
+var chat = require('./modules/chat')();
+
+chat.on('guestEnter', function(data){
+  io.emit('guestEnter', data);
+});
+
+chat.on('guestMessage', function(data){
+  io.emit('guestEnter', data);
+});
+
+chat.on('guestCommand', function(data){
+  console.log(data.user + " commanded: " + data.command);
+  console.log(data);
+  command = data.command;
+
+  if(command == "!track"){
+    chat.say("Current track: " + music.currentTrack + " by " + music.currentArtist);
+  }
+  io.emit('guestCommand', data);
+});
+
+
+
+
 
 
 

@@ -7,15 +7,21 @@
   },
   "dependencies": {
     "body-parser": "~1.13.2",
+    "chalk": "^1.1.1",
     "cookie-parser": "~1.3.5",
     "debug": "~2.2.0",
+    "dotenv": "^2.0.0",
     "ejs": "~2.3.3",
     "express": "~4.13.1",
     "express-livereload": "0.0.24",
+    "hat": "0.0.3",
     "morgan": "~1.6.1",
     "node-sass-middleware": "0.8.0",
+    "node-stringprep": "^0.7.3",
     "nowplaying": "^1.0.6",
     "serve-favicon": "~2.3.0",
-    "socket.io": "^1.4.5"
+    "socket.io": "^1.4.5",
+    "whisperer": "^0.1.0",
+    "xml2js": "^0.4.16"
   }
 }

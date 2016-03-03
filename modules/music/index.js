@@ -10,23 +10,23 @@ function Music(){
 
     var nowplaying = require("nowplaying");
 
-    var currentTrack = null;
-    var currentArtist = null;
+    this.currentTrack = null;
+    this.currentArtist = null;
 
     nowplaying.on("playing", function (data) {
 
-        currentArtist = data.artist;
-        currentTrack = data.name;
+        this.currentArtist = data.artist;
+        this.currentTrack = data.name;
 
-        this.emit('trackChange', {artist: currentArtist, title: currentTrack});
+        this.emit('trackChange', {artist: this.currentArtist, title: this.currentTrack});
     }.bind(this));
 
 
     nowplaying.on("paused", function (data) {
-        currentArtist = "";
-        currentTrack = "";
+        this.currentArtist = "";
+        this.currentTrack = "";
 
-        this.emit('trackChange', {artist: currentArtist, title: currentTrack});
+        this.emit('trackChange', {artist: "", title: ""});
     });
 
 
