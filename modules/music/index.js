@@ -6,9 +6,12 @@ function Music(){
 
     if (!(this instanceof Music)) return new Music;
 
-
+    this.name = "Music";
 
     var nowplaying = require("nowplaying");
+    var iTunes = require('local-itunes');
+
+    var redis = require('redis').createClient();
 
     this.currentTrack = null;
     this.currentArtist = null;
@@ -30,7 +33,31 @@ function Music(){
     });
 
 
+    this.on('guestCommand', function(data){
 
+        if(command == "!skip") {
+            redis_key = data.user + '_skipped'
+
+            redis.exists(redis_key, function (err, reply) {
+                if (reply == 0) {
+                    redis.set(redis_key, 'true');
+                    redis.expire(redis_key, 300);
+
+                    this.emit('systemMessage', {message: data.user + " just skipped " + this.currentTrack + " by " + this.currentArtist})
+                    iTunes.next();
+
+
+                }
+            }.bind(this));
+
+        } else if(command == "!nowplaying"){
+
+            if (this.currentTrack != null && this.currentArtist != null) {
+                this.emit('systemMessage', {message: "Current track: " + this.currentTrack + " by " + this.currentArtist})
+            }
+
+        }
+    });
 
 
     EventEmitter.call(this);

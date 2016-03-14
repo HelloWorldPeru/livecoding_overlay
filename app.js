@@ -80,41 +80,53 @@ app.use(function(err, req, res, next) {
 });
 
 
-io.on( "connection", function( socket ){
-  console.log( "A user connected" );
-});
 
 
 
-// Music
-var music = require('./modules/music')();
-
-music.on('trackChange', function(data){
-  console.log("Now Playing: " + data.title + " by " + data.artist);
-  io.emit('trackChange', data);
-});
+// Analytics
+var analytics = require('./modules/analytics')();
 
 // Chat
 var chat = require('./modules/chat')();
 
-chat.on('guestEnter', function(data){
-  io.emit('guestEnter', data);
-});
+var manager = require('./modules/manager')(app.io);
 
-chat.on('guestMessage', function(data){
-  io.emit('guestEnter', data);
-});
+// Music
+var music = require('./modules/music')();
 
-chat.on('guestCommand', function(data){
-  console.log(data.user + " commanded: " + data.command);
-  console.log(data);
-  command = data.command;
+// Visitors
+var overlay = require('./modules/overlay')(app.io);
 
-  if(command == "!track"){
-    chat.say("Current track: " + music.currentTrack + " by " + music.currentArtist);
-  }
-  io.emit('guestCommand', data);
-});
+// Visitors
+var visitors = require('./modules/visitors')();
+
+var modules = [chat, manager, overlay, music, analytics, visitors];
+var events = ['guestMessage', 'guestEnter', 'guestCommand', 'guestLeave', 'trackChange', 'systemMessage', 'visitorNew', 'visitorExisting'];
+
+modules.forEach(function(module, index, array){
+
+  // Listen for each event
+  events.forEach(function(event, index, array) {
+
+    module.on(event, function (data) {
+
+      if(!data.no_relay){
+        revised_data = data;
+        revised_data.no_relay = true;
+
+        modules.forEach(function(receiving_module , index, array){
+          if (module.name != receiving_module.name) {
+            receiving_module.emit(event, revised_data);
+          }
+        }.bind(this));
+      }
+
+    });
+
+  }.bind(this));
+
+}.bind(this));
+
 
 
 

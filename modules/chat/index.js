@@ -8,6 +8,8 @@ function Chat(){
 
     if (!(this instanceof Chat)) return new Chat;
 
+    this.name = "Chat";
+
     var Whisperer = require('whisperer')
         , chat = new Whisperer({
         jid: process.env.LC_USERNAME,
@@ -56,10 +58,12 @@ function Chat(){
 
             parseString(payload, function (err, result) {
 
+
                 if (err){
                     console.log(err);
                     return;
                 }
+
                 action = result.presence.$.id == "pres:3" ? "guestEnter" : "guestLeave";
                 user = result.presence.$.from.split("/")[1];
 
@@ -78,6 +82,13 @@ function Chat(){
     }.bind(this));
 
 
+    this.on('visitorNew', function(data){
+        this.say("Welcome to the stream @" + data.user);
+    });
+
+    this.on('systemMessage', function(data){
+        this.say(data.message);
+    });
 
     EventEmitter.call(this);
 }
